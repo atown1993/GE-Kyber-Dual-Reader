@@ -13,11 +13,13 @@ If you want the whole thing in one sitting, wire everything from the step-3 map 
 | 2 | **2N7000** N-channel MOSFET (TO-92) | Switches each reader's ground so the two readers take turns. |
 | 2 | 10 kΩ resistor | Voltage dividers (one per reader) |
 | 2 | 20 kΩ resistor | (two 10 kΩ in series works) |
-| 2 | 5 mm **common-anode** RGB LED, 4 legs | Longest leg is the common anode. Common-cathode also works with one `#define` change. |
+| 2 | 5 mm **common-anode** RGB LED, 4 legs — EDGELEC "[24] RGB Tri-color (Common Anode)", ASIN B077XD5T8P | Longest leg is the common anode. The same listing's common-*cathode* variant (B077XGF3YR) also works: set `COMMON_ANODE 0` and put the common leg on GND instead of 3V3. |
 | 2 | 220 Ω resistor | LED red legs |
 | 4 | **47 Ω** resistor | LED green and blue legs. Not 100 Ω — see EXPLAINER, "LED brightness". |
-| 1 | Solderless breadboard, 40+ columns, with power rails | Plus jumper wires |
+| 1 | Solderless breadboard, **400-point (30 columns)** with power rails — e.g. ELEGOO B0CYPVMK9J | The maps are drawn on exactly this board. A bigger board is fine. |
 | 1 | USB cable + a real USB port or wall brick | ~300 mA total; an unpowered hub may brown out |
+
+Every part with an Amazon link, quantities and pack sizes: [`docs/GE-Kyber-Dual-Reader-BOM.xlsx`](docs/GE-Kyber-Dual-Reader-BOM.xlsx).
 
 You'll also want a multimeter (continuity mode) for one step, and a Series 1 and a Series 2
 crystal to test with. A double-ended crystal is the point of the build but not required.

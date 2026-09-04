@@ -45,7 +45,7 @@
 var NS='http://www.w3.org/2000/svg';
 function el(t,a,parent){var e=document.createElementNS(NS,t);for(var k in a)e.setAttribute(k,a[k]);(parent||document.getElementById('bb')).appendChild(e);return e;}
 function txt(x,y,s,a,parent){var e=el('text',Object.assign({x:x,y:y},a),parent);e.textContent=s;return e;}
-var NCOL=40; function cx(c){return 45+(c-1)*20.8;}            // column 1..40
+var NCOL=30; function cx(c){return 45+(c-1)*27;}              // column 1..30 (400-point board)
 var rowY={a:214,b:228,c:242,d:256,e:270,f:306,g:320,h:334,i:348,j:362};
 var railY={'5V':172,'GNDT':196,'3V3':396,'GNDB':420};
 var holes=document.getElementById('holes');
@@ -111,8 +111,8 @@ function fet(c,label){var x=cx(c+1),y=rowY.f+26;
   ['S','G','D'].forEach(function(n,i){el('line',{x1:cx(c+i),y1:rowY.f,x2:cx(c+i),y2:y+6,stroke:'#777','stroke-width':1.2},parts);
     txt(cx(c+i),y+26,n,{fill:'#ccc','font-size':8,'text-anchor':'middle'},parts);});
   txt(x,rowY.f-12,label,{fill:'#444','font-size':9,'text-anchor':'middle','font-weight':500},parts);}
-resistorH(2,5,'b','10k'); resistorH(5,8,'b','20k');          // divider A
-fet(31,'2N7000 A');
+resistorH(2,4,'b','10k'); resistorH(4,6,'b','20k');          // divider A
+fet(24,'2N7000 A');
 
 // ---- wires: [color, fromPoint, toPoint, fromLabel, toLabel, note] ----
 var W=[
@@ -121,11 +121,11 @@ var W=[
  ['#9e9e9e',R('GNDB',2),R('GNDT',3),'top - rail','bottom - rail','bridge the two GND rails'],
  ['#ef5350',pts['A:+5V'],R('5V',7),'RDM A +5V','top + rail',''],
  ['#ffca28',pts['A:TX'],P(2,'a'),'RDM A TX','col 2 (10k)','divider A in'],
- ['#9e9e9e',P(8,'a'),R('GNDT',8),'col 8 (20k end)','top - rail','divider A to GND'],
- ['#66bb6a',P(5,'d'),pts['ESP:SVP'],'col 5 = tap A (3.33V)','ESP32 SVP (L1)','SVP = GPIO36, input-only, UART2 RX'],
- ['#9e9e9e',pts['A:GND'],P(33,'h'),'RDM A GND','col 33 = 2N7000 A DRAIN','NOT the rail'],
- ['#9e9e9e',P(31,'j'),R('GNDB',31),'col 31 = 2N7000 A SOURCE','bottom - rail',''],
- ['#4fc3f7',P(32,'j'),pts['ESP:G0'],'col 32 = 2N7000 A GATE','ESP32 GPIO0 (R5)','reader A enable'],
+ ['#9e9e9e',P(6,'a'),R('GNDT',6),'col 6 (20k end)','top - rail','divider A to GND'],
+ ['#66bb6a',P(4,'d'),pts['ESP:SVP'],'col 4 = tap A (3.33V)','ESP32 SVP (L1)','SVP = GPIO36, input-only, UART2 RX'],
+ ['#9e9e9e',pts['A:GND'],P(26,'h'),'RDM A GND','col 26 = 2N7000 A DRAIN','NOT the rail'],
+ ['#9e9e9e',P(24,'j'),R('GNDB',24),'col 24 = 2N7000 A SOURCE','bottom - rail',''],
+ ['#4fc3f7',P(25,'j'),pts['ESP:G0'],'col 25 = 2N7000 A GATE','ESP32 GPIO0 (R5)','reader A enable'],
  ['#ce93d8',pts['A:ANT1'],pts['CA:L1'],'RDM A ANT1/ANT2','coil A (2 leads)','no polarity'],
  ['#ce93d8',pts['A:ANT2'],pts['CA:L2'],'','','' ],
 ];

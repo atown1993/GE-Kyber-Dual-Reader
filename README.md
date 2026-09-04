@@ -9,7 +9,7 @@ display tells you whether a crystal is **Series 1 or Series 2**.
 
 Built from cheap, common parts: two **RDM6300** 125 kHz RFID modules with their stock coils,
 one **ESP32** board with a built-in OLED, two MOSFETs, two RGB LEDs, a handful of resistors.
-No custom antenna, no PCB, no soldering beyond tinning two coil leads. About $30 in parts.
+No custom antenna, no PCB, no soldering beyond tinning two coil leads. Roughly $65 in parts if you buy everything in packs (see the BOM); much less if you already have resistors, jumpers and a breadboard.
 
 ## What's here
 
@@ -18,6 +18,7 @@ No custom antenna, no PCB, no soldering beyond tinning two coil leads. About $30
 | [`BUILD.md`](BUILD.md) | Parts list, the one pin map, wiring → flash → test, in order |
 | [`EXPLAINER.md`](EXPLAINER.md) | How the crystals work, what the reader sees, what we measured, what didn't work |
 | [`docs/crystal-id-map.md`](docs/crystal-id-map.md) | The tag → character/color table, and the series marker |
+| [`docs/GE-Kyber-Dual-Reader-BOM.xlsx`](docs/GE-Kyber-Dual-Reader-BOM.xlsx) | Bill of materials with Amazon links, quantities, pack sizes |
 | [`docs/breadboard-step1.html`](docs/breadboard-step1.html) / [`.png`](docs/breadboard-step1.png) | Breadboard map, one reader (every wire stays put for step 3) |
 | [`docs/breadboard-step3.html`](docs/breadboard-step3.html) / [`.png`](docs/breadboard-step3.png) | Breadboard map, the full two-reader build |
 | [`docs/esp32-hw724-pins.html`](docs/esp32-hw724-pins.html) / [`.png`](docs/esp32-hw724-pins.png) | The ESP32 board pin by pin — which header position gets what |
@@ -48,3 +49,5 @@ MIT — see [`LICENSE`](LICENSE). Build it, change it, sell it, just keep the no
 *This is an unofficial fan project. It is not affiliated with, endorsed by, or connected to
 Disney, Lucasfilm, or Galaxy's Edge. Character names appear only to identify which crystal
 a tag is programmed as.*
+
+*Amazon links in the BOM are affiliate links; they cost you nothing and help fund the next build.*
