@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="680" height="520" viewBox="0 0 680 520" role="img" font-family="system-ui,Arial,sans-serif">
+<title>Step 1 module wiring: ESP32 HW-724 to RDM6300 HW-205</title>
+<rect x="0" y="0" width="680" height="520" fill="#ffffff"/>
+<text x="20" y="28" font-size="17" font-weight="600" fill="#1a1a1a">Module wiring — reader A (reader B: same, on SVN / GPIO12)</text>
+<text x="20" y="46" font-size="12" fill="#666">ESP32 HW-724 &#8596; RDM6300 HW-205 &#183; pins-up, female jumpers &#183; wire colors keyed in the map below</text>
+
+<!-- ===== ESP32 board ===== -->
+<rect x="45" y="70" width="150" height="360" rx="8" fill="#20242e" stroke="#0d0f14"/>
+<text x="120" y="92" font-size="12" font-weight="600" fill="#dfe4f0" text-anchor="middle">ESP32 HW-724</text>
+<rect x="80" y="104" width="80" height="30" rx="3" fill="#3a3f4b"/>
+<text x="120" y="123" font-size="9" fill="#aeb6c6" text-anchor="middle">WROOM-32</text>
+<rect x="70" y="300" width="100" height="55" rx="3" fill="#0b0d12"/>
+<text x="120" y="331" font-size="9" fill="#5b6472" text-anchor="middle">OLED</text>
+<text x="120" y="418" font-size="9" fill="#8b93a3" text-anchor="middle">USB (bottom)</text>
+
+<!-- used pins on right edge -->
+<!-- GPIO26 -->
+<circle cx="195" cy="120" r="6" fill="#43a047" stroke="#1b3a1e"/>
+<text x="188" y="124" font-size="11" font-weight="600" fill="#c8e6c9" text-anchor="end">SVP</text>
+<!-- GND -->
+<circle cx="195" cy="375" r="6" fill="#111" stroke="#000"/>
+<text x="186" y="379" font-size="11" font-weight="600" fill="#cfcfcf" text-anchor="end">GND</text>
+<!-- 5V -->
+<circle cx="195" cy="400" r="6" fill="#e53935" stroke="#5a1414"/>
+<text x="189" y="404" font-size="11" font-weight="600" fill="#ffcdd2" text-anchor="end">5V</text>
+<!-- faint other pins -->
+<g fill="#4a505c">
+<circle cx="195" cy="150" r="3"/><circle cx="195" cy="180" r="3"/><circle cx="195" cy="210" r="3"/><circle cx="195" cy="240" r="3"/><circle cx="195" cy="270" r="3"/><circle cx="195" cy="345" r="3"/>
+</g>
+
+<text x="45" y="446" font-size="10.5" fill="#444">On the REAL board, all 3 are on</text>
+<text x="45" y="461" font-size="10.5" fill="#444" font-weight="600">the LEFT edge (USB down):</text>
+<text x="45" y="476" font-size="10.5" fill="#444">SVP = the TOP corner pin;</text>
+<text x="45" y="491" font-size="10.5" fill="#444">GND &amp; 5V at the bottom.</text>
+
+<!-- ===== RDM6300 board ===== -->
+<rect x="500" y="70" width="140" height="190" rx="8" fill="#0f7a3d" stroke="#0a4f27"/>
+<text x="570" y="90" font-size="12" font-weight="600" fill="#d7f5e5" text-anchor="middle">RDM6300 HW-205</text>
+<rect x="560" y="120" width="34" height="24" rx="2" fill="#0a5a2c"/>
+<text x="577" y="136" font-size="8" fill="#a7d9bd" text-anchor="middle">LM358</text>
+
+<!-- P1 pins on left edge -->
+<!-- TX -->
+<circle cx="500" cy="108" r="6" fill="#fbc02d" stroke="#6b4e00"/>
+<text x="512" y="112" font-size="11" font-weight="600" fill="#fff3c4" text-anchor="start">TX</text>
+<!-- RX -->
+<circle cx="500" cy="131" r="6" fill="#7a8290" stroke="#3a3f47"/>
+<text x="512" y="135" font-size="10" fill="#cfd4dc" text-anchor="start">RX</text>
+<!-- NC -->
+<circle cx="500" cy="154" r="6" fill="#7a8290" stroke="#3a3f47"/>
+<text x="512" y="158" font-size="10" fill="#cfd4dc" text-anchor="start">NC</text>
+<!-- GND -->
+<circle cx="500" cy="177" r="6" fill="#111" stroke="#000"/>
+<text x="512" y="181" font-size="10" font-weight="600" fill="#e6e6e6" text-anchor="start">GND</text>
+<!-- +5V -->
+<circle cx="500" cy="200" r="6" fill="#e53935" stroke="#5a1414"/>
+<text x="512" y="204" font-size="10" font-weight="600" fill="#ffcdd2" text-anchor="start">+5V</text>
+<text x="500" y="228" font-size="9" fill="#bfe6cf">P1 order: TX·RX·NC·GND·+5V</text>
+<text x="500" y="242" font-size="9" fill="#bfe6cf">(verify GND/+5V w/ meter — no silk)</text>
+
+<!-- antenna -->
+<circle cx="612" cy="258" r="5" fill="#8e24aa"/><circle cx="628" cy="258" r="5" fill="#8e24aa"/>
+<text x="605" y="252" font-size="8" fill="#e1bee7">ANT1 ANT2</text>
+<!-- 4-pin unused -->
+<text x="640" y="120" font-size="9" fill="#bfe6cf" text-anchor="end">4-pin P3</text>
+<text x="640" y="132" font-size="9" fill="#bfe6cf" text-anchor="end">(LED, unused)</text>
+
+<!-- ===== Divider ===== -->
+<text x="330" y="96" font-size="11" font-weight="600" fill="#333" text-anchor="middle">Voltage divider</text>
+<rect x="315" y="120" width="30" height="46" rx="3" fill="#d7b56a" stroke="#8a6d3b"/>
+<text x="330" y="147" font-size="10" fill="#4a3a10" text-anchor="middle">10k</text>
+<rect x="315" y="186" width="30" height="46" rx="3" fill="#d7b56a" stroke="#8a6d3b"/>
+<text x="330" y="213" font-size="10" fill="#4a3a10" text-anchor="middle">20k</text>
+<text x="352" y="180" font-size="9" fill="#2e7d32">tap = 3.33V</text>
+
+<!-- ===== WIRES ===== -->
+<!-- yellow: RDM TX -> top of 10k -->
+<polyline points="500,108 420,108 330,108 330,120" fill="none" stroke="#fbc02d" stroke-width="3"/>
+<!-- green: tap(330,166..186 mid=176) -> GPIO26(195,150) -->
+<polyline points="330,176 260,176 260,120 195,120" fill="none" stroke="#43a047" stroke-width="3"/>
+<circle cx="330" cy="176" r="3.5" fill="#2e7d32"/>
+<!-- black GND bus: 20k bottom(330,232) -> down -> ESP GND(195,375) and RDM GND(500,177) -->
+<polyline points="330,232 330,375 195,375" fill="none" stroke="#222" stroke-width="3"/>
+<polyline points="330,300 400,300" fill="none" stroke="#222" stroke-width="3"/>
+<polyline points="432,300 460,300 460,177 500,177" fill="none" stroke="#222" stroke-width="3"/>
+<rect x="400" y="286" width="32" height="28" rx="4" fill="#222" stroke="#000"/>
+<text x="416" y="298" font-size="7" fill="#fff" text-anchor="middle">2N7000</text>
+<text x="416" y="309" font-size="7" fill="#9be7ff" text-anchor="middle">S &#8592; D</text>
+<polyline points="416,314 416,330" fill="none" stroke="#4fc3f7" stroke-width="2.5"/>
+<text x="416" y="342" font-size="8" fill="#0277bd" text-anchor="middle">gate &#8594; GPIO0</text>
+<circle cx="330" cy="300" r="3.5" fill="#000"/>
+<!-- red 5V: ESP 5V(195,400) -> RDM +5V(500,200) -->
+<polyline points="195,400 480,400 480,200 500,200" fill="none" stroke="#e53935" stroke-width="3"/>
+<!-- purple antenna to coil -->
+<polyline points="612,258 612,300" fill="none" stroke="#8e24aa" stroke-width="3"/>
+<polyline points="628,258 628,300" fill="none" stroke="#8e24aa" stroke-width="3"/>
+<circle cx="620" cy="330" r="26" fill="none" stroke="#b08d57" stroke-width="5"/>
+<circle cx="620" cy="330" r="18" fill="none" stroke="#b08d57" stroke-width="4"/>
+<text x="620" y="372" font-size="9" fill="#666" text-anchor="middle">stock coil</text>
+
+<!-- ===== wire map legend ===== -->
+<rect x="230" y="412" width="430" height="96" rx="6" fill="#f5f5f2" stroke="#ddd"/>
+<text x="244" y="431" font-size="11" font-weight="600" fill="#333">Wire map (from &#8594; to, by function)</text>
+<g font-size="10.5" fill="#333">
+<circle cx="246" cy="450" r="5" fill="#e53935"/><text x="258" y="454">RDM +5V &#8594; ESP32 5V</text>
+<circle cx="246" cy="472" r="5" fill="#222"/><text x="258" y="476">RDM GND &#8594; 2N7000 drain &#8594; GND</text>
+<circle cx="246" cy="494" r="5" fill="#fbc02d"/><text x="258" y="498">RDM TX &#8594; divider (10k/20k)</text>
+<circle cx="492" cy="450" r="5" fill="#43a047"/><text x="504" y="454">tap &#8594; SVP (GPIO36)</text>
+<circle cx="492" cy="472" r="5" fill="#8e24aa"/><text x="504" y="476">ANT1/ANT2 &#8594; coil</text>
+<text x="492" y="498" fill="#777">RDM RX &#8594; unused</text>
+</g>
+</svg>

@@ -1,8 +1,50 @@
-# GE-Kyber-Dual-Reader
+# GE Kyber Dual Reader
 
-Public, MIT-licensed release of the dual-ended Galaxy's Edge kyber crystal reader: build guide, drawings, sketches. Curated from Kyber-Crystal-Reader.
+A bench display that reads **both ends of a double-ended Galaxy's Edge kyber crystal at
+once** — the character and color programmed into each tip, shown on a small OLED, with an
+RGB LED at each end lit in the crystal's color. Single-ended crystals work too, and the
+display tells you whether a crystal is **Series 1 or Series 2**.
 
-- Atlas id: `ge-kyber-dual-reader` / program: `crystal-tech` / Tier 3
-- Storage: github-first
+![Two-reader breadboard](docs/breadboard-step3.png)
 
-Scaffolded by `atlas.py new` on 2026-09-03.
+Built from cheap, common parts: two **RDM6300** 125 kHz RFID modules with their stock coils,
+one **ESP32** board with a built-in OLED, two MOSFETs, two RGB LEDs, a handful of resistors.
+No custom antenna, no PCB, no soldering beyond tinning two coil leads. About $30 in parts.
+
+## What's here
+
+| | |
+|---|---|
+| [`BUILD.md`](BUILD.md) | Parts list, the one pin map, wiring → flash → test, in order |
+| [`EXPLAINER.md`](EXPLAINER.md) | How the crystals work, what the reader sees, what we measured, what didn't work |
+| [`docs/crystal-id-map.md`](docs/crystal-id-map.md) | The tag → character/color table, and the series marker |
+| [`docs/breadboard-step1.html`](docs/breadboard-step1.html) / [`.png`](docs/breadboard-step1.png) | Breadboard map, one reader (every wire stays put for step 3) |
+| [`docs/breadboard-step3.html`](docs/breadboard-step3.html) / [`.png`](docs/breadboard-step3.png) | Breadboard map, the full two-reader build |
+| [`docs/esp32-hw724-pins.html`](docs/esp32-hw724-pins.html) / [`.png`](docs/esp32-hw724-pins.png) | The ESP32 board pin by pin — which header position gets what |
+| [`docs/wiring-modules.svg`](docs/wiring-modules.svg) / [`.png`](docs/wiring-modules.png) | Module-level wiring: ESP32 ↔ RDM6300 ↔ divider ↔ coil |
+| `arduino/step1_bringup/` | Step 1: one reader, raw tag values on the Serial Monitor |
+| `arduino/kyber_display/` | Step 2: one reader, series + character + color on the OLED |
+| `arduino/kyber_dual/` | Step 3: two readers, both ends, LEDs |
+
+Open the `.html` drawings in any browser; they're self-contained. The `.png` files are
+the same drawings rendered.
+
+## Credit
+
+This project stands on **ruthsarian's** work for the Galaxy's Edge maker community: his
+2019 RDM6300 kyber sketches (the EM4100 frame format, the checksum scheme, and the
+`0xC00 + id` decode rule) and his lightsaber research spreadsheets (the crystal ID →
+character → color table). The sketches here are new code written for a two-reader ESP32
+design, but they would not exist without that groundwork. His GitHub:
+<https://github.com/ruthsarian>.
+
+The "pass-through" antenna idea in the explainer comes from charger06's Instructables
+"DIY V2 Kyber Crystal RFID Identifier / Pass-Through Scanner".
+
+## License
+
+MIT — see [`LICENSE`](LICENSE). Build it, change it, sell it, just keep the notice.
+
+*This is an unofficial fan project. It is not affiliated with, endorsed by, or connected to
+Disney, Lucasfilm, or Galaxy's Edge. Character names appear only to identify which crystal
+a tag is programmed as.*
