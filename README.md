@@ -26,6 +26,7 @@ No custom antenna, no PCB, no soldering beyond tinning two coil leads. Roughly $
 | `arduino/step1_bringup/` | Step 1: one reader, raw tag values on the Serial Monitor |
 | `arduino/kyber_display/` | Step 2: one reader, series + character + color on the OLED |
 | `arduino/kyber_dual/` | Step 3: two readers, both ends, LEDs |
+| `reference/` | ruthsarian's single-reader `rfid_module_code.ino` (his code, his permission) |
 
 Open the `.html` drawings in any browser; they're self-contained. The `.png` files are
 the same drawings rendered.
@@ -33,10 +34,11 @@ the same drawings rendered.
 ## Credit
 
 This project stands on **ruthsarian's** work for the Galaxy's Edge maker community: his
-2019 RDM6300 kyber sketches (the EM4100 frame format, the checksum scheme, and the
-`0xC00 + id` decode rule) and his lightsaber research spreadsheets (the crystal ID →
-character → color table). The sketches here are new code written for a two-reader ESP32
-design, but they would not exist without that groundwork. His GitHub:
+RDM6300 kyber sketches (the EM4100 frame format, the checksum scheme, and the
+`0xC00 + id` decode rule — 2019 originals, and the 2026 multi-variant reader in
+`reference/`, included with his permission) and his lightsaber research spreadsheets (the
+crystal ID → character → color table). The sketches here are new code written for a
+two-reader ESP32 design, but they would not exist without that groundwork. His GitHub:
 <https://github.com/ruthsarian>.
 
 The "pass-through" antenna idea in the explainer comes from charger06's Instructables

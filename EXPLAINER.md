@@ -94,7 +94,8 @@ below ~22 Ω.
 
 ## Credits
 
-- **ruthsarian** — the 2019 RDM6300 sketches, the frame/checksum handling, the crystal ID
+- **ruthsarian** — the RDM6300 sketches (2019 originals; 2026 multi-variant reader in
+  `reference/`, included with his permission), the frame/checksum handling, the crystal ID
   research. <https://github.com/ruthsarian>
 - **charger06** — the pass-through scanner idea (Instructables, "DIY V2 Kyber Crystal RFID
   Identifier / Pass-Through Scanner").

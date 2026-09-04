@@ -129,3 +129,4 @@ Interactive version: `docs/breadboard-step3.html`.
 | Teal/green/blue LEDs dim, red fine | You used 100 Ω on G/B. Use 47 Ω. |
 | Board won't boot / enters download mode | Something is loading GPIO0 or GPIO12 at reset — LEDs never go on those pins |
 | Upload hangs at "Connecting" | Hold BOOT until "Writing at…" |
+| Bytes on Serial but never a valid frame | Some RDM6300 clones send a 1-byte raw checksum — `kyber_dual.ino` accepts both. Clones with no STX/ETX at all are not supported (see `reference/`). |

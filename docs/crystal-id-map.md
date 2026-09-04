@@ -111,17 +111,19 @@ Tag values **3121, 3122, 3123** (0xC31, 0xC32, 0xC33) sit outside the base 16.
 ruthsarian names the three specials as **Snoke, 8-ball Vader, and 8-ball Yoda**,
 but does not state which tag belongs to which.
 
-What `kyber_reader.ino` renders for them:
+What ruthsarian's 2026 `rfid_module_code.ino` (`reference/`) renders for them —
+this supersedes the 2019 sketch, which had 0xC33 as red:
 
 | Tag (dec) | Tag (hex) | Rendered color | Likely crystal (UNVERIFIED) |
 |---|---|---|---|
 | 3121 | 0xC31 | Red | Snoke or 8-ball Vader |
 | 3122 | 0xC32 | Green | 8-ball Yoda |
-| 3123 | 0xC33 | Red | Snoke or 8-ball Vader |
+| 3123 | 0xC33 | **Black** | one of the two Sith specials |
 
 0xC32 → 8-ball Yoda is a reasonably safe call on color alone (it's the only green
-of the three). Distinguishing 0xC31 from 0xC33 needs a physical scan of a known
-crystal. **Open item.**
+of the three). 0xC33 = Black comes from ruthsarian's newer code, not from a scan
+in this project; `kyber_dual.ino` lights it dim white so "present" still shows.
+Pinning names to 0xC31 / 0xC33 needs a physical scan of a known crystal. **Open item.**
 
 ---
 
@@ -149,8 +151,11 @@ crystal. **Open item.**
 
 All of the underlying research is **ruthsarian's** (Galaxy's Edge maker community):
 
+- His 2026 `rfid_module_code.ino` (`reference/`, included with his permission) — the
+  current reference parser and the specials table above.
 - His 2019 RDM6300 sketches (`kyber_reader.ino`, 2019-08-26; LCD/servo fork by kochiro,
-  2022-04-25) — source of the raw tag values and the `0xC00 + id` rule.
+  2022-04-25) — original source of the raw tag values and the `0xC00 + id` rule. Not
+  redistributed here (their own provenance is mixed, per ruthsarian).
 - His Galaxy's Edge lightsaber research spreadsheets ("Lightsaber Blade Hardware and
   Operation" — the "Blade Command & Kyber Crystal IDs" section; "Lightsaber Hilt & Blade
   Communications" — the V2 blade-controller color table and the orange/cyan note).

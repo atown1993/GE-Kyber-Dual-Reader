@@ -44,6 +44,12 @@
  *
  *  Decode rule (docs/crystal-id-map.md): version byte 0x00 = Series 1,
  *  0x11 = Series 2; colorId = tag & 0xFFF, 0xC00 + character id.
+ *
+ *  FRAME VARIANTS: genuine RDM6300 (and the HW-205 this was built on) sends the
+ *  checksum as 2 ASCII-hex chars; some clones send it as 1 raw byte. Both are
+ *  accepted (see pump()). Clones that send NO STX/ETX/checksum at all are not
+ *  supported -- the checksum is what rejects two-tag collisions in this design.
+ *  Variant handling follows ruthsarian's reference/rfid_module_code.ino.
  */
 
 #include <Wire.h>
@@ -56,6 +62,7 @@
 const unsigned long WINDOW_MS   = 1000;  // per-reader turn. Measured first-frame = 405-471 ms, so 500 was too short
 const uint8_t       MISS_LIMIT  = 3;     // windows with no valid read before an end goes dark
 const uint8_t       COMMON_ANODE = 1;    // 1 = common anode (GPIO sinks), 0 = common cathode
+const unsigned long FRAME_IDLE_MS = 500; // a half-received frame older than this is discarded
 
 // ---------------- pins ----------------
 const int PIN_RX_A = 36, PIN_RX_B = 39;   // SVP, SVN
@@ -106,9 +113,10 @@ struct Reader {
   // coil, does the winner ever flip?" (Matt, 2026-09-03). Up to 4 IDs, 5 s window.
   uint16_t        seenId[4];
   unsigned long   seenAt[4];
+  unsigned long   lastByteMs;     // for the stale half-frame reset
 };
-Reader A = {"TOP", &RFID_A, PIN_EN_A, LED_TOP, 0, {0},0, false,0,0,0,false,0, {0},{0}};
-Reader B = {"BOT", &RFID_B, PIN_EN_B, LED_BOT, 3, {0},0, false,0,0,0,false,0, {0},{0}};
+Reader A = {"TOP", &RFID_A, PIN_EN_A, LED_TOP, 0, {0},0, false,0,0,0,false,0, {0},{0}, 0};
+Reader B = {"BOT", &RFID_B, PIN_EN_B, LED_BOT, 3, {0},0, false,0,0,0,false,0, {0},{0}, 0};
 
 uint8_t hex1(char c){
   if (c>='0'&&c<='9') return c-'0';
@@ -142,8 +150,9 @@ void ledShow(Reader& r){
   if (r.colorId>=0xC00 && r.colorId<=0xC0F){
     const uint8_t* c = CRYSTAL_RGB[r.colorId & 0xF];
     ledWrite(r, c[0], c[1], c[2]);
-  } else if (r.colorId==0xC31 || r.colorId==0xC33){ ledWrite(r,255,0,0); }   // Snoke / 8-ball Vader
-  else if (r.colorId==0xC32){ ledWrite(r,0,255,0); }                          // 8-ball Yoda
+  } else if (r.colorId==0xC31){ ledWrite(r,255,0,0); }                       // Snoke / 8-ball Vader (red)
+  else if (r.colorId==0xC32){ ledWrite(r,0,255,0); }                          // 8-ball Yoda (green)
+  else if (r.colorId==0xC33){ ledWrite(r,20,20,20); }                         // Black (per ruthsarian 2026 code; unscanned) -- dim so "present" still shows
   else ledWrite(r, 40, 40, 40);                                               // unknown: dim white
 }
 
@@ -152,8 +161,9 @@ void describe(const Reader& r, char* out, size_t n){
   if (!r.present){ snprintf(out,n,"%s: --", r.label); return; }
   const char* name; const char* color; char tmp[16];
   if (r.colorId>=0xC00 && r.colorId<=0xC0F){ name=CHAR_NAME[r.colorId&0xF]; color=CRYSTAL_COLOR[r.colorId&0xF]; }
-  else if (r.colorId==0xC31||r.colorId==0xC33){ name="Snoke/8ball"; color="Red"; }
+  else if (r.colorId==0xC31){ name="Snoke/8ball"; color="Red"; }
   else if (r.colorId==0xC32){ name="8ball Yoda"; color="Green"; }
+  else if (r.colorId==0xC33){ name="Special"; color="Black"; }
   else { snprintf(tmp,sizeof(tmp),"0x%03X",r.colorId); name=tmp; color="?"; }
   snprintf(out,n,"%s: S%d %s", r.label, r.version==0x11?2:1, color);
   // second line holds the name; caller draws it
@@ -162,8 +172,9 @@ void describe(const Reader& r, char* out, size_t n){
 const char* nameOf(const Reader& r){
   if (!r.present) return "";
   if (r.colorId>=0xC00 && r.colorId<=0xC0F) return CHAR_NAME[r.colorId&0xF];
-  if (r.colorId==0xC31||r.colorId==0xC33) return "Snoke/8ball Vader";
+  if (r.colorId==0xC31) return "Snoke/8ball Vader";
   if (r.colorId==0xC32) return "8-ball Yoda";
+  if (r.colorId==0xC33) return "Special (black)";
   return "Unknown";
 }
 void drawScreen(const Reader* active){
@@ -213,7 +224,9 @@ void noteSeen(Reader& r, uint16_t id){
 bool handleFrame(Reader& r, unsigned long windowStart){
   uint8_t data[5], chk = 0;
   for (int i=0;i<5;i++){ data[i]=hex2(r.buf[1+2*i],r.buf[2+2*i]); chk ^= data[i]; }
-  if (chk != hex2(r.buf[11],r.buf[12])) return false;       // garbage / two-tag collision
+  // idx==14: 2-char ASCII checksum (genuine RDM6300); idx==13: 1 raw byte (some clones)
+  uint8_t frameChk = (r.idx==14) ? hex2(r.buf[11],r.buf[12]) : (uint8_t)r.buf[11];
+  if (chk != frameChk) return false;                         // garbage / two-tag collision
   uint32_t tag = ((uint32_t)data[1]<<24)|((uint32_t)data[2]<<16)|((uint32_t)data[3]<<8)|data[4];
   if (tag == 0) return false;                                // the 0x000 ghost frame seen 2026-09-03
   uint8_t version = data[0];
@@ -233,10 +246,14 @@ bool handleFrame(Reader& r, unsigned long windowStart){
 void pump(Reader& r, unsigned long windowStart){
   while (r.port->available()){
     int v = r.port->read();
+    r.lastByteMs = millis();
     if (v==0x02) r.idx=0;
     if (r.idx<14) r.buf[r.idx++]=(char)v;
-    if (v==0x03 && r.idx==14){ handleFrame(r, windowStart); r.idx=0; }
+    // ETX lands at idx 14 (ASCII checksum) or 13 (raw checksum byte). A 0x03 arriving
+    // at idx 12 IS a raw checksum byte whose value happens to be 3 -- keep going.
+    if (v==0x03 && (r.idx==14 || r.idx==13)){ handleFrame(r, windowStart); r.idx=0; }
   }
+  if (r.idx>0 && millis()-r.lastByteMs > FRAME_IDLE_MS) r.idx=0;   // half-frame went stale
 }
 void endWindow(Reader& r){
   if (!r.readThisWindow){
