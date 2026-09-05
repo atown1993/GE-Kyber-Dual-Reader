@@ -179,6 +179,9 @@ shares one EM tag ID (`11 000C0x` — version `0x11` + the §1 color id), but th
 Other words: 06 varies with color (`0C80`/`2980`/`6F80`/`7B00`/`1800`/`5E00` + `3000`),
 01 and 03 look per-tag unique (serial), the rest are constant across all 17.
 
+Independently confirmed live 2026-09-04: a Proxmark3 dump of the Grievous crystal above
+reads EM4305 word 09 = `060D0000` on a tag broadcasting `1111000C07` — exactly the table.
+
 **Consequence for this build:** the RDM6300 only decodes the EM4100 broadcast, so it
 can report an S2 crystal's **series and color** but structurally cannot tell Grievous
 from Mace Windu. `kyber_dual.ino` therefore shows "S2: char in tag mem" for any
