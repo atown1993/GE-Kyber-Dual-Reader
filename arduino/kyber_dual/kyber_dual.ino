@@ -87,10 +87,6 @@ const char* CHAR_NAME_S1[16] = {
   "Chirrut Imwe","Palpatine","Count Dooku","Maz Kanata",
   "Yoda","Darth Maul","Old Luke","Mace Windu #2"
 };
-static inline const char* charName(uint16_t colorId, uint8_t version){
-  if (version==0x11) return "S2: char in tag mem";   // not readable over EM4100 broadcast
-  return CHAR_NAME_S1[colorId & 0xF];
-}
 const char* CRYSTAL_COLOR[16] = {
   "White","Red","Orange","Yellow","Green","Teal","Blue","Purple",
   "White","Red","Red","Yellow","Green","Red","Blue","Purple"
@@ -127,6 +123,11 @@ struct Reader {
 };
 Reader A = {"TOP", &RFID_A, PIN_EN_A, LED_TOP, 0, {0},0, false,0,0,0,false,0, {0},{0}, 0};
 Reader B = {"BOT", &RFID_B, PIN_EN_B, LED_BOT, 3, {0},0, false,0,0,0,false,0, {0},{0}, 0};
+
+const char* charName(uint16_t colorId, uint8_t version){   // below struct Reader on purpose: Arduino 1.8 inserts ALL auto-prototypes at the first function
+  if (version==0x11) return "S2: char in tag mem";   // not readable over EM4100 broadcast
+  return CHAR_NAME_S1[colorId & 0xF];
+}
 
 uint8_t hex1(char c){
   if (c>='0'&&c<='9') return c-'0';
