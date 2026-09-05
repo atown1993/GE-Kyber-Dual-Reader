@@ -3,7 +3,9 @@
 A bench display that reads **both ends of a double-ended Galaxy's Edge kyber crystal at
 once** — the character and color programmed into each tip, shown on a small OLED, with an
 RGB LED at each end lit in the crystal's color. Single-ended crystals work too, and the
-display tells you whether a crystal is **Series 1 or Series 2**.
+display tells you whether a crystal is **Series 1 or Series 2**. One known limit: for
+Series 2 crystals the character isn't in the part of the tag this reader can see, so you
+get series + color only ([why](docs/crystal-id-map.md#6-series-2--the-character-is-in-tag-memory-not-the-broadcast-id)).
 
 ![Two-reader breadboard](docs/breadboard-step3.png)
 

@@ -75,12 +75,22 @@ HardwareSerial RFID_A(2);
 HardwareSerial RFID_B(1);
 
 // ---------------- crystal tables ----------------
-const char* CHAR_NAME[16] = {
+// Character per crystal id -- SERIES 1 ONLY. Series 2 crystals (version byte 0x11)
+// reuse the same 16 color ids but the S2 character is NOT in the broadcast id: it
+// lives in tag memory (EM4305 word 09), which an RDM6300 cannot read. Two S2
+// crystals with identical broadcast ids can be different characters (0xC07 = Mace
+// Windu AND General Grievous). So for S2 we report the color and say so.
+// See docs/crystal-id-map.md section 6.
+const char* CHAR_NAME_S1[16] = {
   "Ahsoka Tano","Darth Vader","(orange)","Temple Guard",
   "Qui-Gon Jinn","(teal)","Old Obi-Wan","Mace Windu #1",
   "Chirrut Imwe","Palpatine","Count Dooku","Maz Kanata",
   "Yoda","Darth Maul","Old Luke","Mace Windu #2"
 };
+static inline const char* charName(uint16_t colorId, uint8_t version){
+  if (version==0x11) return "S2: char in tag mem";   // not readable over EM4100 broadcast
+  return CHAR_NAME_S1[colorId & 0xF];
+}
 const char* CRYSTAL_COLOR[16] = {
   "White","Red","Orange","Yellow","Green","Teal","Blue","Purple",
   "White","Red","Red","Yellow","Green","Red","Blue","Purple"
@@ -160,7 +170,7 @@ void ledShow(Reader& r){
 void describe(const Reader& r, char* out, size_t n){
   if (!r.present){ snprintf(out,n,"%s: --", r.label); return; }
   const char* name; const char* color; char tmp[16];
-  if (r.colorId>=0xC00 && r.colorId<=0xC0F){ name=CHAR_NAME[r.colorId&0xF]; color=CRYSTAL_COLOR[r.colorId&0xF]; }
+  if (r.colorId>=0xC00 && r.colorId<=0xC0F){ name=charName(r.colorId,r.version); color=CRYSTAL_COLOR[r.colorId&0xF]; }
   else if (r.colorId==0xC31){ name="Snoke/8ball"; color="Red"; }
   else if (r.colorId==0xC32){ name="8ball Yoda"; color="Green"; }
   else if (r.colorId==0xC33){ name="Special"; color="Black"; }
@@ -171,7 +181,7 @@ void describe(const Reader& r, char* out, size_t n){
 }
 const char* nameOf(const Reader& r){
   if (!r.present) return "";
-  if (r.colorId>=0xC00 && r.colorId<=0xC0F) return CHAR_NAME[r.colorId&0xF];
+  if (r.colorId>=0xC00 && r.colorId<=0xC0F) return charName(r.colorId,r.version);
   if (r.colorId==0xC31) return "Snoke/8ball Vader";
   if (r.colorId==0xC32) return "8-ball Yoda";
   if (r.colorId==0xC33) return "Special (black)";

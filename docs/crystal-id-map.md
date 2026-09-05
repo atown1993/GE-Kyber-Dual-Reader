@@ -3,8 +3,9 @@
 Canonical lookup table for Galaxy's Edge kyber crystal RFID tags, cross-verified
 across two independent sources (see **Sources** at the bottom).
 
-Status: **16 base IDs verified 16/16.** 3 "special" IDs identified but their
-individual assignment is unconfirmed. Post-2022 crystal releases are unaudited.
+Status: **16 base IDs verified 16/16** (Series 1 characters). 3 "special" IDs identified
+but their individual assignment is unconfirmed. **Series 2 characters are NOT in the
+broadcast ID — see §6.**
 
 **Live-scan verification (2026-09-03, RDM6300 on HW-724):** version byte = series
 (00=S1, 11=S2) confirmed across S1 {0xC01,0xC02,0xC07,0xC09,0xC0A,0xC32} and
@@ -142,8 +143,49 @@ Pinning names to 0xC31 / 0xC33 needs a physical scan of a known crystal. **Open 
    read straight from the EM4100 broadcast — no addressed memory read needed, which
    retires the "need an EM4095 for Series 2" assumption. (Whether `0x11`'s two nibbles
    or the tag's matching high byte encode anything finer is still open — log more S2
-   samples.)
+   samples.) **But see §6: the S2 CHARACTER is not in the broadcast at all.**
 3. **Individual special-crystal assignment** (§4).
+4. **Series 2 character identification** needs an EM4305 memory read (§6).
+
+---
+
+## 6. Series 2 — the character is in tag memory, not the broadcast ID
+
+**Found 2026-09-04.** A Series 2 purple crystal sold as **General Grievous** scanned as
+`VERSION 0x11 colorId 0xC07` — byte-identical on the wire to a Series 2 **Mace Windu**.
+The S1 "voice" column in §2 does not apply to S2 crystals, and no S2 column can be
+built from the broadcast ID at all.
+
+Full EM4305 memory dumps of 17 Series 2 crystals (the "Kyber Crystal" Series 2 tab of the
+community Galaxy's Edge research workbook) show why. Every S2 crystal of a given color
+shares one EM tag ID (`11 000C0x` — version `0x11` + the §1 color id), but the
+**character lives in word 09**, high byte (low three bytes are a constant `0D0000`):
+
+| Word 09 (hi byte) | S2 voice | Broadcast color id |
+|---|---|---|
+| 0x01 | Darth Sidious | 0xC01 (black crystal) |
+| 0x02 | Ben Solo | 0xC06 (blue, "cracked") |
+| 0x04 | Plo Koon | 0xC06 (blue) |
+| 0x05 | Luke Skywalker | 0xC04 (green) |
+| 0x06 | General Grievous | 0xC07 (purple) |
+| 0x07 | Mace Windu | 0xC07 (purple) |
+| 0x08 | Asajj Ventress | 0xC01 (red) |
+| 0x11 | Maul | 0xC01 (red) |
+| 0x13 | Grand Inquisitor | 0xC01 (red) |
+| 0x14 | Krin Dagbard | 0xC00 (white) |
+| 0x17 | Rey Skywalker | 0xC03 (yellow) |
+| 0x18 | Luminara Unduli | 0xC04 (green) |
+
+Other words: 06 varies with color (`0C80`/`2980`/`6F80`/`7B00`/`1800`/`5E00` + `3000`),
+01 and 03 look per-tag unique (serial), the rest are constant across all 17.
+
+**Consequence for this build:** the RDM6300 only decodes the EM4100 broadcast, so it
+can report an S2 crystal's **series and color** but structurally cannot tell Grievous
+from Mace Windu. `kyber_dual.ino` therefore shows "S2: char in tag mem" for any
+`0x11` crystal instead of a wrong S1 name. Reading word 09 needs an addressed EM4305
+read (an EM4095-class read/write front end, or a Proxmark) — a different reader, not a
+firmware change. Note also that the S2 **black** crystal broadcasts as `0xC01` (red id),
+not `0xC33`.
 
 ---
 
