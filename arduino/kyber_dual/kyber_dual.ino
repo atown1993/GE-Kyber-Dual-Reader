@@ -278,6 +278,8 @@ void endWindow(Reader& r){
 // ---------------- setup / loop ----------------
 void setup(){
   Serial.begin(115200);
+  delay(300);
+  Serial.printf("kyber_dual build %s %s -- S2 char: tag-memory only\n", __DATE__, __TIME__);   // proves which build is actually running
   pinMode(PIN_EN_A, OUTPUT); pinMode(PIN_EN_B, OUTPUT);
   digitalWrite(PIN_EN_A, LOW); digitalWrite(PIN_EN_B, LOW);
   ledSetup(A); ledSetup(B); ledShow(A); ledShow(B);
