@@ -156,8 +156,8 @@ Pinning names to 0xC31 / 0xC33 needs a physical scan of a known crystal. **Open 
 The S1 "voice" column in §2 does not apply to S2 crystals, and no S2 column can be
 built from the broadcast ID at all.
 
-Full EM4305 memory dumps of 17 Series 2 crystals (the "Kyber Crystal" Series 2 tab of the
-community Galaxy's Edge research workbook) show why. Every S2 crystal of a given color
+Full EM4305 memory dumps of 17 Series 2 crystals (the "Kyber Crystal" Series 2 tab of
+ruthsarian's collected Galaxy's Edge research workbook — community-shared data) show why. Every S2 crystal of a given color
 shares one EM tag ID (`11 000C0x` — version `0x11` + the §1 color id), but the
 **character lives in word 09**, high byte (low three bytes are a constant `0D0000`):
 
