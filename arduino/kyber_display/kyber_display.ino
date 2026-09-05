@@ -2,9 +2,8 @@
  *  ------------------------------------------------------------------
  *  Reads a Galaxy's Edge kyber crystal on the RDM6300 and shows, on the
  *  board's onboard OLED:
- *      line 1  SERIES   (1 or 2)
- *      line 2  character / voice name
- *      line 3  crystal color
+ *      line 1  "Series 1 Kyber Crystal" / "Series 2 Kyber Crystal"
+ *      line 2  crystal color (no character names -- see docs/crystal-id-map.md section 6)
  *  The full raw frame still prints to Serial (115200) so we can keep
  *  verifying the series marker across more crystals.
  *
@@ -43,12 +42,8 @@ bool showingIdle = false;
 uint32_t lastTagShown = 0xFFFFFFFF;
 
 // ---- crystal ID table (docs/crystal-id-map.md), index = low nibble 0x0..0xF ----
-const char* CHAR_NAME[16] = {
-  "Ahsoka Tano","Darth Vader","(orange-none)","Temple Guard",
-  "Qui-Gon Jinn","(cyan-none)","Old Obi-Wan","Mace Windu #1",
-  "Chirrut Imwe","Palpatine","Count Dooku","Maz Kanata",
-  "Yoda","Darth Maul","Old Luke","Mace Windu #2"
-};
+// No character names -- the Series 2 character is not in the broadcast id (see
+// docs/crystal-id-map.md section 6), so both series show SERIES + COLOR only.
 const char* CRYSTAL_COLOR[16] = {
   "White","Red","Orange","Yellow","Green","Cyan","Blue","Purple",
   "White","Red","Red","Yellow","Green","Red","Blue","Purple"
@@ -62,13 +57,12 @@ uint8_t hex1(char c){
 }
 uint8_t hex2(char hi,char lo){ return (hex1(hi)<<4)|hex1(lo); }
 
-void drawScreen(const char* series,const char* name,const char* color){
+void drawScreen(const char* series,const char* color){
   oled.clearBuffer();
-  oled.setFont(u8g2_font_ncenB10_tr);    // ~10px bold, for the short SERIES header
+  oled.setFont(u8g2_font_5x8_tr);         // "Series 1 Kyber Crystal" = 22 chars; 6x12 only fits 21
   oled.drawStr(0,14,series);
-  oled.setFont(u8g2_font_6x12_tr);       // 6px wide: 21 chars fit 128px, so every name fits
-  oled.drawStr(0,36,name);
-  oled.drawStr(0,54,color);
+  oled.setFont(u8g2_font_ncenB14_tr);    // big color line
+  oled.drawStr(0,44,color);
   oled.sendBuffer();
 }
 
@@ -107,28 +101,20 @@ void handleFrame(){
 
   // ---- SERIES from the version byte ----
   const char* series;
-  char seriesBuf[16];
-  if      (version==0x00) series="SERIES 1";
-  else if (version==0x11) series="SERIES 2";
-  else { snprintf(seriesBuf,sizeof(seriesBuf),"SERIES? 0x%02X",version); series=seriesBuf; }
+  char seriesBuf[24];
+  if      (version==0x00) series="Series 1 Kyber Crystal";
+  else if (version==0x11) series="Series 2 Kyber Crystal";
+  else { snprintf(seriesBuf,sizeof(seriesBuf),"Series? 0x%02X",version); series=seriesBuf; }
 
-  // ---- name + color ----
-  const char* name; const char* color;
-  char nameBuf[24], colorBuf[16];
-  if (colorId>=0xC00 && colorId<=0xC0F){
-    uint8_t id = colorId & 0x0F;
-    name  = CHAR_NAME[id];
-    color = CRYSTAL_COLOR[id];
-  } else if (colorId==0xC31 || colorId==0xC33){
-    name="Snoke / 8ball Vader"; color="Red";
-  } else if (colorId==0xC32){
-    name="8-ball Yoda"; color="Green";
-  } else {
-    snprintf(nameBuf,sizeof(nameBuf),"Unknown 0x%03X",colorId);  name=nameBuf;
-    strcpy(colorBuf,"?"); color=colorBuf;
-  }
+  // ---- color ----
+  const char* color; char colorBuf[16];
+  if (colorId>=0xC00 && colorId<=0xC0F)  color = CRYSTAL_COLOR[colorId & 0x0F];
+  else if (colorId==0xC31)               color = "Red";     // special
+  else if (colorId==0xC32)               color = "Green";   // special (8-ball Yoda)
+  else if (colorId==0xC33)               color = "Black";   // special
+  else { snprintf(colorBuf,sizeof(colorBuf),"? 0x%03X",colorId); color=colorBuf; }
 
-  drawScreen(series,name,color);
+  drawScreen(series,color);
   lastRead = millis();
   showingIdle = false;
 
@@ -138,7 +124,7 @@ void handleFrame(){
     Serial.print("VERSION 0x"); if(version<16)Serial.print('0'); Serial.print(version,HEX);
     Serial.print("  colorId 0x"); Serial.print(colorId,HEX);
     Serial.print("  ("); Serial.print(series); Serial.print(", ");
-    Serial.print(name); Serial.print(", "); Serial.print(color); Serial.println(")");
+    Serial.print(color); Serial.println(")");
   }
 }
 

@@ -87,7 +87,7 @@ Interactive version with the full hole-by-hole wire table: `docs/breadboard-step
 
 ## Step 2 — one reader, OLED readout
 
-Same wiring. Install U8g2, flash `arduino/kyber_display`. The OLED shows series, character,
+Same wiring. Install U8g2, flash `arduino/kyber_display`. The OLED shows series and
 color. If the OLED shows a frozen factory splash instead, **unplug USB and plug it back in**
 once — the vendor demo can leave the panel latched and only a power cycle clears it.
 
@@ -107,7 +107,7 @@ Interactive version: `docs/breadboard-step3.html`.
    with nothing near them — that's the two readers taking turns, and it means the MOSFETs
    are doing their job.
 5. Stand the coils facing each other about **25 mm (1 inch) apart**, crystal between them.
-   A double-ended crystal shows one character/color per end; flip it and they swap.
+   A double-ended crystal shows one series/color per end; flip it and they swap.
 
 ### Tuning knobs (top of `kyber_dual.ino`)
 

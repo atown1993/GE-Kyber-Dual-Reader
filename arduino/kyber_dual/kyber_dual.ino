@@ -43,7 +43,7 @@
  *  it glows faintly, and pushes current into the pin).
  *
  *  Decode rule (docs/crystal-id-map.md): version byte 0x00 = Series 1,
- *  0x11 = Series 2; colorId = tag & 0xFFF, 0xC00 + character id.
+ *  0x11 = Series 2; colorId = tag & 0xFFF, 0xC00 + color id.
  *
  *  FRAME VARIANTS: genuine RDM6300 (and the HW-205 this was built on) sends the
  *  checksum as 2 ASCII-hex chars; some clones send it as 1 raw byte. Both are
@@ -75,23 +75,15 @@ HardwareSerial RFID_A(2);
 HardwareSerial RFID_B(1);
 
 // ---------------- crystal tables ----------------
-// Character per crystal id -- SERIES 1 ONLY. Series 2 crystals (version byte 0x11)
-// reuse the same 16 color ids but the S2 character is NOT in the broadcast id: it
-// lives in tag memory (EM4305 word 09), which an RDM6300 cannot read. Two S2
-// crystals with identical broadcast ids can be different characters (0xC07 = Mace
-// Windu AND General Grievous). So for S2 we report the color and say so.
+// No character names: the Series 2 character is NOT in the broadcast id (it lives in
+// EM4305 word 09, unreadable by an RDM6300 -- two S2 crystals with identical ids can be
+// different characters), so the display reports SERIES + COLOR only, for both series.
 // See docs/crystal-id-map.md section 6.
-const char* CHAR_NAME_S1[16] = {
-  "Ahsoka Tano","Darth Vader","(orange)","Temple Guard",
-  "Qui-Gon Jinn","(teal)","Old Obi-Wan","Mace Windu #1",
-  "Chirrut Imwe","Palpatine","Count Dooku","Maz Kanata",
-  "Yoda","Darth Maul","Old Luke","Mace Windu #2"
-};
 const char* CRYSTAL_COLOR[16] = {
   "White","Red","Orange","Yellow","Green","Teal","Blue","Purple",
   "White","Red","Red","Yellow","Green","Red","Blue","Purple"
 };
-// RGB per character id (0..15). Tune to taste on the bench.
+// RGB per color id (0..15). Tune to taste on the bench.
 const uint8_t CRYSTAL_RGB[16][3] = {
   {255,255,255},{255,0,0},{255,70,0},{255,170,0},
   {0,255,0},{0,255,120},{0,0,255},{170,0,255},
@@ -124,10 +116,6 @@ struct Reader {
 Reader A = {"TOP", &RFID_A, PIN_EN_A, LED_TOP, 0, {0},0, false,0,0,0,false,0, {0},{0}, 0};
 Reader B = {"BOT", &RFID_B, PIN_EN_B, LED_BOT, 3, {0},0, false,0,0,0,false,0, {0},{0}, 0};
 
-const char* charName(uint16_t colorId, uint8_t version){   // below struct Reader on purpose: Arduino 1.8 inserts ALL auto-prototypes at the first function
-  if (version==0x11) return "S2: char in tag mem";   // not readable over EM4100 broadcast
-  return CHAR_NAME_S1[colorId & 0xF];
-}
 
 uint8_t hex1(char c){
   if (c>='0'&&c<='9') return c-'0';
@@ -168,34 +156,32 @@ void ledShow(Reader& r){
 }
 
 // ---------------- OLED ----------------
-void describe(const Reader& r, char* out, size_t n){
-  if (!r.present){ snprintf(out,n,"%s: --", r.label); return; }
-  const char* name; const char* color; char tmp[16];
-  if (r.colorId>=0xC00 && r.colorId<=0xC0F){ name=charName(r.colorId,r.version); color=CRYSTAL_COLOR[r.colorId&0xF]; }
-  else if (r.colorId==0xC31){ name="Snoke/8ball"; color="Red"; }
-  else if (r.colorId==0xC32){ name="8ball Yoda"; color="Green"; }
-  else if (r.colorId==0xC33){ name="Special"; color="Black"; }
-  else { snprintf(tmp,sizeof(tmp),"0x%03X",r.colorId); name=tmp; color="?"; }
-  snprintf(out,n,"%s: S%d %s", r.label, r.version==0x11?2:1, color);
-  // second line holds the name; caller draws it
-  (void)name;
-}
-const char* nameOf(const Reader& r){
-  if (!r.present) return "";
-  if (r.colorId>=0xC00 && r.colorId<=0xC0F) return charName(r.colorId,r.version);
-  if (r.colorId==0xC31) return "Snoke/8ball Vader";
-  if (r.colorId==0xC32) return "8-ball Yoda";
-  if (r.colorId==0xC33) return "Special (black)";
+const char* colorOf(const Reader& r){
+  if (r.colorId>=0xC00 && r.colorId<=0xC0F) return CRYSTAL_COLOR[r.colorId&0xF];
+  if (r.colorId==0xC31) return "Red";      // special
+  if (r.colorId==0xC32) return "Green";    // special (8-ball Yoda)
+  if (r.colorId==0xC33) return "Black";    // special
   return "Unknown";
 }
+void seriesLine(const Reader& r, char* out, size_t n){          // "Series 1 Kyber Crystal" / blank when empty
+  if (!r.present){ out[0]=0; return; }
+  snprintf(out,n,"Series %d Kyber Crystal", r.version==0x11?2:1);
+}
+void colorLine(const Reader& r, char* out, size_t n){           // "TOP  Purple" / "TOP  --"
+  if (!r.present){ snprintf(out,n,"%s  --", r.label); return; }
+  if (r.colorId>=0xC00 && r.colorId<=0xC33) snprintf(out,n,"%s  %s", r.label, colorOf(r));
+  else snprintf(out,n,"%s  0x%03X", r.label, r.colorId);
+}
 void drawScreen(const Reader* active){
-  char l1[24], l3[24];
-  describe(A,l1,sizeof(l1)); describe(B,l3,sizeof(l3));
+  char sA[24], cA[24], sB[24], cB[24];
+  seriesLine(A,sA,sizeof(sA)); colorLine(A,cA,sizeof(cA));
+  seriesLine(B,sB,sizeof(sB)); colorLine(B,cB,sizeof(cB));
   oled.clearBuffer();
-  oled.setFont(u8g2_font_6x12_tr);
-  oled.drawStr(0,11,l1);  oled.drawStr(0,23,nameOf(A));
+  oled.setFont(u8g2_font_5x8_tr);   oled.drawStr(0,8,sA);    // 25 chars fit; "Series 1 Kyber Crystal" is 22
+  oled.setFont(u8g2_font_6x12_tr);  oled.drawStr(0,23,cA);
   oled.drawHLine(0,30,128);
-  oled.drawStr(0,43,l3);  oled.drawStr(0,55,nameOf(B));
+  oled.setFont(u8g2_font_5x8_tr);   oled.drawStr(0,40,sB);
+  oled.setFont(u8g2_font_6x12_tr);  oled.drawStr(0,55,cB);
   // tiny activity marker: which reader is powered right now
   oled.drawStr(110,64, active==&A ? "A" : active==&B ? "B" : "AB");
   oled.sendBuffer();
@@ -248,9 +234,8 @@ bool handleFrame(Reader& r, unsigned long windowStart){
   r.present = true; r.version = version; r.colorId = colorId; r.misses = 0;
   if (!r.readThisWindow){ r.readThisWindow = true; r.firstFrameMs = millis()-windowStart; }
   if (changed){
-    Serial.printf("[%s] VERSION 0x%02X colorId 0x%03X (S%d, %s, %s)  first-frame %lu ms after power-on\n",
-      r.label, version, colorId, version==0x11?2:1, nameOf(r),
-      (colorId>=0xC00&&colorId<=0xC0F)?CRYSTAL_COLOR[colorId&0xF]:"?", r.firstFrameMs);
+    Serial.printf("[%s] VERSION 0x%02X colorId 0x%03X (Series %d, %s)  first-frame %lu ms after power-on\n",
+      r.label, version, colorId, version==0x11?2:1, colorOf(r), r.firstFrameMs);
   }
   return true;
 }
@@ -279,7 +264,7 @@ void endWindow(Reader& r){
 void setup(){
   Serial.begin(115200);
   delay(300);
-  Serial.printf("kyber_dual build %s %s -- S2 char: tag-memory only\n", __DATE__, __TIME__);   // proves which build is actually running
+  Serial.printf("kyber_dual build %s %s -- series + color only\n", __DATE__, __TIME__);   // proves which build is actually running
   pinMode(PIN_EN_A, OUTPUT); pinMode(PIN_EN_B, OUTPUT);
   digitalWrite(PIN_EN_A, LOW); digitalWrite(PIN_EN_B, LOW);
   ledSetup(A); ledSetup(B); ledShow(A); ledShow(B);
